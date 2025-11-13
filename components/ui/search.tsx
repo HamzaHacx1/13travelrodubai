@@ -43,7 +43,7 @@ const SearchSection = () => {
 
   return (
     <section className="mt-8 sm:mt-12 lg:mt-16 rounded-3xl bg-white/5 p-4 sm:p-6 shadow-lg ring-1 ring-white/10 backdrop-blur">
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="flex flex-col gap-5">
         <div className="flex flex-1 flex-col gap-5 rounded-3xl bg-white p-5 sm:p-7 shadow-lg">
           <p className="font-tiktok text-xs tracking-[0.4em] text-primary-bright">
             Plan your escape
@@ -93,7 +93,7 @@ const SearchSection = () => {
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 rounded-2xl border border-white/20 bg-gradient-to-b from-slate-900/80 to-slate-900/30 p-4 sm:p-6 text-white">
+        <div className="flex flex-1 flex-col gap-4 rounded-2xl border border-white/20  bg-gradient-to-b from-slate-900/80 to-slate-900/30 p-4 sm:p-6 text-white">
           <p className="font-tiktok text-xs tracking-[0.4em] text-secondary">
             Why book with us
           </p>

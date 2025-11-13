@@ -32,10 +32,8 @@ const Header = () => {
     <header className="sticky top-0 z-30 w-full border-b border-white/30 bg-white/90 backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
         <div className="flex items-center gap-3">
-          <Image src="/logo1.png" alt="13 Travelro Dubai" width={180} height={42} />
-          <p className="hidden text-xs font-semibold uppercase tracking-[0.3em] text-primary-bright sm:block">
-            Dubai
-          </p>
+          <Image src="/logo-primary.png" alt="13 Travelro Dubai" width={80} height={42} />
+         
         </div>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 lg:flex">
