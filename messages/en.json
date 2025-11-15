@@ -1,6 +1,159 @@
 {
-  "Home": {
-    "title": "Welcome to 13TravelRo",
-    "description": "Plan your dream Dubai vacation."
+  "Header": {
+    "nav": {
+      "stays": "Stays",
+      "experiences": "Experiences",
+      "dining": "Dining",
+      "concierge": "Concierge"
+    },
+    "planTrip": "Plan a trip",
+    "languageLabel": "Select language",
+    "languages": {
+      "en": "English",
+      "ro": "Romanian"
+    }
+  },
+  "Hero": {
+    "eyebrow": "Experience Dubai",
+    "headline": "Curated stays, tours & unforgettable escapes."
+  },
+  "Search": {
+    "eyebrow": "Plan your escape",
+    "headline": "Find your next Dubai story",
+    "description": "Tell us where you want to wake up and what vibe you’re chasing. We’ll pair sky-high suites, desert adventures, and chef’s tables into one seamless plan.",
+    "cityLabel": "Select city",
+    "cityPlaceholder": "City",
+    "currencyLabel": "Select currency",
+    "searchPlaceholder": "What are you looking for?",
+    "button": "Search trips",
+    "currencies": {
+      "aed": "UAE Dirham (AED)",
+      "usd": "US Dollar (USD)",
+      "eur": "Euro (EUR)",
+      "ron": "Romanian Leu (RON)"
+    },
+    "reasonsEyebrow": "Why book with us",
+    "reasonsTitle": "Tailor-made adventures. Zero guesswork.",
+    "reasons": {
+      "licensed": {
+        "title": "Licensed guides",
+        "copy": "Every host is accredited and vetted so you get insider access with total peace of mind."
+      },
+      "flexible": {
+        "title": "Flexible changes",
+        "copy": "Plans shift. Reschedule most experiences up to 24h before check-in without the drama."
+      },
+      "moments": {
+        "title": "Signature moments",
+        "copy": "From desert dinners to rooftop suites, we curate only the itineraries worth bragging about."
+      },
+      "value": {
+        "title": "Transparent value",
+        "copy": "No surprise markups—just premium perks and upgrades negotiated directly with our partners."
+      }
+    }
+  },
+  "Services": {
+    "eyebrow": "Curated services",
+    "title": "Book the moments Dubai is famous for.",
+    "description": "Swap these placeholders with live API results later. Each card comes with an image, rate, and social proof so guests can commit with confidence.",
+    "fromPrice": "from {price}",
+    "reviewCount": "{count, plural, one {# review} other {# reviews}}",
+    "flexibleCancellation": "Flexible cancellation",
+    "reserve": "Reserve",
+    "cards": {
+      "sunriseDesertSafari": "Sunrise Desert Safari",
+      "museumFuture": "Museum of the Future Pass",
+      "burjKhalifaSuite": "Burj Khalifa Horizon Suite",
+      "oldDubaiCulinary": "Old Dubai Culinary Trail",
+      "yachtCharterPalm": "Yacht Charter on the Palm",
+      "hotAirBalloon": "Hot Air Balloon + Breakfast",
+      "louvreTransfer": "Private Louvre Abu Dhabi Transfer",
+      "helicopterCircuit": "Skyline Helicopter Circuit",
+      "palmSunsetDinner": "Palm Sunset Yacht Dinner",
+      "wellnessHammam": "Wellness Hammam Ritual"
+    }
+  },
+  "Destinations": {
+    "eyebrow": "Trending routes",
+    "title": "Pick a district, we’ll handle the storytelling.",
+    "button": "Full destination guide",
+    "highlights": {
+      "oldDubai": {
+        "title": "Old Dubai",
+        "description": "Abra rides, spice souks & Michelin Bib food tours."
+      },
+      "palmWestBeach": {
+        "title": "Palm West Beach",
+        "description": "Designer clubs, sunset views, and private cabanas."
+      },
+      "abuDhabi": {
+        "title": "Abu Dhabi Daytrip",
+        "description": "Falcons, Louvre, and Saadiyat stays in one route."
+      }
+    }
+  },
+  "Testimonials": {
+    "eyebrow": "Loved by guests",
+    "items": {
+      "sasha": {
+        "quote": "13 Travelro stitched together transfers, restaurants, and a sunrise balloon ride in 48 hours. It felt like our trip had its own showrunner.",
+        "author": "Sasha, NYC"
+      },
+      "rahul": {
+        "quote": "They got us a last-minute table at Tresind Studio and a private yacht with kids’ programming. Nothing felt standard.",
+        "author": "Rahul & Aditi, Singapore"
+      },
+      "daniela": {
+        "quote": "Our concierge used WhatsApp voice notes to tweak the itinerary in real time. Every edit was executed within minutes.",
+        "author": "Daniela, Madrid"
+      }
+    }
+  },
+  "AuthCTA": {
+    "eyebrow": "Members club",
+    "title": "Unlock concierge-only rates & waitlist access.",
+    "description": "Create an account or log in to sync saved itineraries, manage payments, and chat with a travel designer in minutes.",
+    "emailPlaceholder": "Email address",
+    "login": "Log in",
+    "create": "Create account",
+    "disclaimer": "By continuing, you agree to curated emails and our privacy policy."
+  },
+  "Footer": {
+    "eyebrow": "13 Travelro Dubai",
+    "title": "Ultra-tailored itineraries since 2013.",
+    "description": "We obsess over every transfer, tasting menu, and turndown so you don’t have to. Swap this copy with your own story when you’re ready.",
+    "groups": {
+      "plan": {
+        "title": "Plan",
+        "links": {
+          "stays": "Stays",
+          "experiences": "Experiences",
+          "dining": "Private Dining"
+        }
+      },
+      "company": {
+        "title": "Company",
+        "links": {
+          "about": "About",
+          "journal": "Journal",
+          "careers": "Careers"
+        }
+      },
+      "support": {
+        "title": "Support",
+        "links": {
+          "contact": "Contact",
+          "faqs": "FAQs",
+          "terms": "Terms"
+        }
+      }
+    },
+    "policies": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cookies": "Cookies"
+    },
+    "copyright": "© {year} 13 Travelro. All rights reserved."
   }
 }

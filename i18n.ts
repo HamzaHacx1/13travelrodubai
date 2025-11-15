@@ -4,11 +4,15 @@ import { getRequestConfig } from "next-intl/server";
 
 
 export const routing = defineRouting({
-  locales: ["en", "fr", "ar"],
+  locales: ["en", "ro"],
   defaultLocale: "en",
   localePrefix: "as-needed",
   pathnames: {
     "/": "/",
+    "/services/museum-of-the-future": {
+      en: "/services/museum-of-the-future",
+      ro: "/services/museum-of-the-future",
+    },
   },
 });
 

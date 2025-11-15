@@ -1,0 +1,159 @@
+{
+  "Header": {
+    "nav": {
+      "stays": "Cazări",
+      "experiences": "Experiențe",
+      "dining": "Restaurante",
+      "concierge": "Concierge"
+    },
+    "planTrip": "Planifică o călătorie",
+    "languageLabel": "Selectează limba",
+    "languages": {
+      "en": "Engleză",
+      "ro": "Română"
+    }
+  },
+  "Hero": {
+    "eyebrow": "Descoperă Dubaiul",
+    "headline": "Sejururi, tururi și escapade memorabile, atent curate."
+  },
+  "Search": {
+    "eyebrow": "Planifică-ți evadarea",
+    "headline": "Găsește următoarea ta poveste din Dubai",
+    "description": "Spune-ne unde vrei să te trezești și ce stare cauți. Noi combinăm sky bar-uri, safari la apus și cine cu chefi într-un singur plan fluid.",
+    "cityLabel": "Selectează un oraș",
+    "cityPlaceholder": "Oraș",
+    "currencyLabel": "Alege moneda",
+    "searchPlaceholder": "Ce vrei să cauți?",
+    "button": "Caută experiențe",
+    "currencies": {
+      "aed": "Dirham EAU (AED)",
+      "usd": "Dolar american (USD)",
+      "eur": "Euro (EUR)",
+      "ron": "Leu românesc (RON)"
+    },
+    "reasonsEyebrow": "De ce să rezervi cu noi",
+    "reasonsTitle": "Itinerare personalizate. Zero griji.",
+    "reasons": {
+      "licensed": {
+        "title": "Ghiduri acreditate",
+        "copy": "Fiecare gazdă este verificată pentru ca tu să ai acces din culise cu liniște deplină."
+      },
+      "flexible": {
+        "title": "Modificări flexibile",
+        "copy": "Planurile se schimbă. Reprogramezi majoritatea experiențelor cu 24h înainte, fără drama."
+      },
+      "moments": {
+        "title": "Momente semnătură",
+        "copy": "De la cine în deșert la suite pe rooftop, alegem doar itinerariile demne de povestit."
+      },
+      "value": {
+        "title": "Valoare transparentă",
+        "copy": "Fără costuri ascunse—doar beneficii premium negociate direct cu partenerii noștri."
+      }
+    }
+  },
+  "Services": {
+    "eyebrow": "Servicii curatoriate",
+    "title": "Rezervă momentele pentru care Dubaiul este celebru.",
+    "description": "Înlocuiește ulterior aceste exemple cu rezultate reale din API. Fiecare card are imagine, tarif și dovadă socială pentru decizii rapide.",
+    "fromPrice": "de la {price}",
+    "reviewCount": "{count, plural, one {# recenzie} few {# recenzii} other {# de recenzii}}",
+    "flexibleCancellation": "Anulare flexibilă",
+    "reserve": "Rezervă",
+    "cards": {
+      "sunriseDesertSafari": "Safari în deșert la răsărit",
+      "museumFuture": "Acces la Museum of the Future",
+      "burjKhalifaSuite": "Suită Burj Khalifa Horizon",
+      "oldDubaiCulinary": "Circuit culinar în Dubaiul vechi",
+      "yachtCharterPalm": "Iaht privat pe Palm",
+      "hotAirBalloon": "Zbor cu balonul și mic dejun",
+      "louvreTransfer": "Transfer privat la Louvre Abu Dhabi",
+      "helicopterCircuit": "Circuit cu elicopterul peste skyline",
+      "palmSunsetDinner": "Cină la apus pe Palm",
+      "wellnessHammam": "Ritual wellness Hammam"
+    }
+  },
+  "Destinations": {
+    "eyebrow": "Trasee populare",
+    "title": "Alege cartierul, iar noi ne ocupăm de poveste.",
+    "button": "Vezi ghidul complet al destinațiilor",
+    "highlights": {
+      "oldDubai": {
+        "title": "Dubaiul vechi",
+        "description": "Plimbări cu abra, souk-uri cu mirodenii și tururi culinare Bib Michelin."
+      },
+      "palmWestBeach": {
+        "title": "Palm West Beach",
+        "description": "Cluburi de designer, apusuri spectaculoase și cabane private."
+      },
+      "abuDhabi": {
+        "title": "Excursie de o zi în Abu Dhabi",
+        "description": "Șoimi, Louvre și sejururi pe Saadiyat într-un singur traseu."
+      }
+    }
+  },
+  "Testimonials": {
+    "eyebrow": "Apreciată de oaspeți",
+    "items": {
+      "sasha": {
+        "quote": "13 Travelro a legat transferurile, restaurantele și un zbor cu balonul la răsărit în 48 de ore. Am simțit că vacanța noastră avea propriul regizor.",
+        "author": "Sasha, New York"
+      },
+      "rahul": {
+        "quote": "Ne-au găsit o masă de ultim moment la Tresind Studio și un iaht privat cu activități pentru copii. Nimic nu a fost obișnuit.",
+        "author": "Rahul & Aditi, Singapore"
+      },
+      "daniela": {
+        "quote": "Concierge-ul ne-a trimis mesaje vocale pe WhatsApp și a ajustat itinerariul în timp real. Fiecare modificare s-a făcut în câteva minute.",
+        "author": "Daniela, Madrid"
+      }
+    }
+  },
+  "AuthCTA": {
+    "eyebrow": "Clubul membrilor",
+    "title": "Accesează tarife de concierge și liste de așteptare.",
+    "description": "Creează un cont sau autentifică-te pentru a sincroniza itinerariile salvate, a gestiona plățile și a discuta cu un travel designer în câteva minute.",
+    "emailPlaceholder": "Adresă de e-mail",
+    "login": "Autentificare",
+    "create": "Creează cont",
+    "disclaimer": "Continuând, accepți e-mailurile noastre curatoriate și politica de confidențialitate."
+  },
+  "Footer": {
+    "eyebrow": "13 Travelro Dubai",
+    "title": "Itinerarii ultra-personalizate din 2013.",
+    "description": "Ne ocupăm de fiecare transfer, meniu degustare și turndown ca tu să te relaxezi. Înlocuiește textul cu povestea ta când ești gata.",
+    "groups": {
+      "plan": {
+        "title": "Planificare",
+        "links": {
+          "stays": "Cazări",
+          "experiences": "Experiențe",
+          "dining": "Cine private"
+        }
+      },
+      "company": {
+        "title": "Companie",
+        "links": {
+          "about": "Despre noi",
+          "journal": "Jurnal",
+          "careers": "Cariere"
+        }
+      },
+      "support": {
+        "title": "Suport",
+        "links": {
+          "contact": "Contact",
+          "faqs": "Întrebări frecvente",
+          "terms": "Termeni"
+        }
+      }
+    },
+    "policies": {
+      "privacy": "Confidențialitate",
+      "terms": "Termeni",
+      "cookies": "Cookie-uri"
+    },
+    "copyright": "© {year} 13 Travelro. Toate drepturile rezervate."
+  }
+}
