@@ -1,6 +1,6 @@
 import "../../globals.css";
 
-import { Funnel_Sans, Geist, Geist_Mono, TikTok_Sans } from "next/font/google";
+import { Figtree, Funnel_Sans, Geist_Mono, TikTok_Sans } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -8,14 +8,15 @@ import type { Metadata } from "next";
 import { routing } from "@/i18n";
 
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const figtree = Figtree({
+  variable: "--font-figtree",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const funnelSans = Funnel_Sans({
@@ -61,7 +62,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${geistSans.variable} ${funnelSans.variable} ${tiktokSans.variable} ${geistMono.variable} antialiased`}
+        className={`${figtree.className} ${funnelSans.variable} ${tiktokSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}

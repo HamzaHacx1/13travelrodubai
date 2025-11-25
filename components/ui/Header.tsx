@@ -16,7 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/i18n";
-import { usePathname, useRouter } from "@/navigation";
+import { Link as LocalizedLink, usePathname, useRouter } from "@/navigation";
 
 
 const navLinks = [
@@ -63,8 +63,16 @@ const Header = () => {
     <header className="sticky top-0 z-30 w-full border-b border-white/30 bg-white/90 backdrop-blur-lg">
       <div className="flex max-w-full items-center mx-20 justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
         <div className="flex items-center gap-3">
-          <Image src="/logo-primary.png" alt="13 Travelro Dubai" width={80} height={42} />
-         
+          <LocalizedLink href="/" aria-label="Go to homepage">
+            <Image
+              src="/logo-primary.png"
+              alt="13 Travelro Dubai"
+              width={80}
+              height={42}
+              className="transition hover:opacity-80"
+            />
+          </LocalizedLink>
+
         </div>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 lg:flex">

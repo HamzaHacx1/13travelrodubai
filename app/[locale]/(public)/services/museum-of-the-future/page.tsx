@@ -550,89 +550,90 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       <Header />
       {/* HERO & BREADCRUMBS */}
       <section className="bg-slate-950 text-white">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-0">
-          <nav className="text-xs uppercase tracking-[0.3em] text-white/70">
-            <LocalizedLink href="/" className="hover:text-secondary">
-              {content.breadcrumbs.home}
-            </LocalizedLink>
-            <span className="mx-2">/</span>
-            <LocalizedLink href="/" className="hover:text-secondary">
-              {content.breadcrumbs.category}
-            </LocalizedLink>
-            <span className="mx-2">/</span>
-            {/* <span className="text-white">{content.breadcrumbs.current}</span> */}
-          </nav>
-
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-4">
-              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.4em] text-secondary">
-                {content.hero.tag}
-              </p>
-
-              <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">
-                {content.hero.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-white/80">
-                <span className="inline-flex items-center gap-1 font-semibold">
-                  <Star size={18} className="text-secondary" />
-                  {content.hero.ratingLabel}
-                </span>
-                <span>{content.hero.reviewCount}</span>
-                <span className="inline-flex items-center gap-1">
-                  <MapPin size={16} className="text-secondary" />
-                  {content.hero.location}
-                </span>
-                <span className="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-wide">
-                  {content.hero.badge}
-                </span>
+        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-0">
+          <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+            <div className="order-1">
+              <div className="grid auto-rows-[180px] gap-4 rounded-3xl bg-white p-4 shadow-xl sm:p-6 lg:grid-cols-2">
+                {galleryImages.map((image, index) => (
+                  <div
+                    key={`${image.src}-${index}`}
+                    className={`relative overflow-hidden rounded-2xl ${image.span || ""}`}
+                  >
+                    <Image
+                      src={image.src}
+                      alt={content.hero.title}
+                      fill
+                      sizes="(min-width: 1024px) 40vw, 100vw"
+                      className="object-cover"
+                      priority={index === 0}
+                    />
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <p className="max-w-3xl text-base text-white/85">
-                {content.hero.description}
-              </p>
-              <p className="text-xs text-white/60">{content.hero.note}</p>
+            <div className="order-2 space-y-6">
+              <nav className="text-xs uppercase tracking-[0.3em] text-white/70">
+                <LocalizedLink href="/" className="hover:text-secondary">
+                  {content.breadcrumbs.home}
+                </LocalizedLink>
+                <span className="mx-2">/</span>
+                <LocalizedLink href="/" className="hover:text-secondary">
+                  {content.breadcrumbs.category}
+                </LocalizedLink>
+                <span className="mx-2">/</span>
+                {/* <span className="text-white">{content.breadcrumbs.current}</span> */}
+              </nav>
 
-              <div className="flex flex-wrap gap-3">
-                <Button className="rounded-2xl bg-secondary px-6 text-slate-950 hover:bg-secondary/80">
-                  {content.hero.ctaPrimary}
-                </Button>
+              <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+                <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.4em] text-secondary">
+                  {content.hero.tag}
+                </p>
 
-                <Button
-                  variant="outline"
-                  className="rounded-2xl border-white/40 hover:text-white px-6 text-white bg-primary hover:bg-primary-bright/10"
-                >
-                  {content.hero.ctaSecondary}
-                </Button>
+                <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">
+                  {content.hero.title}
+                </h1>
+
+                <div className="flex flex-wrap items-center gap-4 text-sm text-white/80">
+                  <span className="inline-flex items-center gap-1 font-semibold">
+                    <Star size={18} className="text-secondary" />
+                    {content.hero.ratingLabel}
+                  </span>
+                  <span>{content.hero.reviewCount}</span>
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin size={16} className="text-secondary" />
+                    {content.hero.location}
+                  </span>
+                  <span className="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-wide">
+                    {content.hero.badge}
+                  </span>
+                </div>
+
+                <p className="max-w-3xl text-base text-white/85">
+                  {content.hero.description}
+                </p>
+                <p className="text-xs text-white/60">{content.hero.note}</p>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button className="rounded-2xl bg-secondary px-6 text-slate-950 hover:bg-secondary/80">
+                    {content.hero.ctaPrimary}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="rounded-2xl border-white/40 bg-primary px-6 text-white hover:bg-primary-bright/10 hover:text-white"
+                  >
+                    {content.hero.ctaSecondary}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* GALLERY */}
-      <section className="relative z-10 mt-16 px-4 sm:px-6 lg:px-0">
-        <div className="mx-auto grid w-full max-w-6xl auto-rows-[180px] gap-4 rounded-3xl bg-white p-4 shadow-xl sm:p-6 lg:grid-cols-4">
-          {galleryImages.map((image, index) => (
-            <div
-              key={`${image.src}-${index}`}
-              className={`relative overflow-hidden rounded-2xl ${image.span || ""}`}
-            >
-              <Image
-                src={image.src}
-                alt={content.hero.title}
-                fill
-                sizes="(min-width: 1024px) 25vw, 50vw"
-                className="object-cover"
-                priority={index === 0}
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* MAIN CONTENT */}
-      <section className="mx-auto mt-16 w-full max-w-6xl gap-10 px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] lg:px-0">
+      <section className="mx-auto mt-14 w-full max-w-6xl gap-10 px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] lg:px-0">
         <article className="space-y-10">
           {/* QUICK FACTS */}
           <div className="grid gap-4 sm:grid-cols-2">
