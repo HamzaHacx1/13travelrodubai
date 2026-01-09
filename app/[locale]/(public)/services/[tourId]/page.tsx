@@ -10,6 +10,7 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -125,6 +126,110 @@ const fetchRayna = async (endpoint: string, payload: Record<string, unknown>) =>
   return response.json();
 };
 
+type Translations = Awaited<ReturnType<typeof getTranslations>>;
+
+type BookingCardProps = {
+  cityId: number;
+  countryId: number;
+  tourId: number;
+  travelDate: string;
+  bookingPerks: string[];
+  servicesT: Translations;
+  t: Translations;
+};
+
+const BookingCardSkeleton = () => (
+  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 animate-pulse">
+    <div className="h-6 w-36 rounded-full bg-slate-200" />
+    <div className="mt-3 h-4 w-56 rounded-full bg-slate-200" />
+    <div className="mt-6 h-8 w-40 rounded-full bg-slate-200" />
+    <div className="mt-2 h-4 w-20 rounded-full bg-slate-200" />
+    <div className="mt-4 space-y-2">
+      <div className="h-4 w-44 rounded-full bg-slate-200" />
+      <div className="h-4 w-36 rounded-full bg-slate-200" />
+      <div className="h-4 w-40 rounded-full bg-slate-200" />
+    </div>
+    <div className="mt-6 h-11 w-full rounded-2xl bg-slate-200" />
+    <div className="mt-2 h-11 w-full rounded-2xl bg-slate-200" />
+  </div>
+);
+
+async function BookingCard({
+  cityId,
+  countryId,
+  tourId,
+  travelDate,
+  bookingPerks,
+  servicesT,
+  t,
+}: BookingCardProps) {
+  let price: TourPrice | undefined;
+
+  try {
+    const priceData = (await fetchRayna("/api/Tour/gettourprice", {
+      countryId,
+      cityId,
+      travelDate,
+    })) as TourPriceResponse;
+
+    price = priceData.result?.tourPrice?.find(
+      (item) => item.cityTourID === tourId,
+    );
+  } catch {
+    price = undefined;
+  }
+
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+      <h3 className="text-xl font-semibold text-slate-900">
+        {t("booking")}
+      </h3>
+
+      <p className="text-sm text-slate-600">{t("bookingCopy")}</p>
+
+      {typeof price?.finalAdultAmount === "number" ? (
+        <p className="mt-6 text-3xl font-semibold text-slate-900">
+          {servicesT("fromPrice", {
+            price: new Intl.NumberFormat("en", {
+              style: "currency",
+              currency: price.currency ?? "AED",
+              maximumFractionDigits: 0,
+            }).format(price.finalAdultAmount),
+          })}
+        </p>
+      ) : (
+        <p className="mt-6 text-2xl font-semibold text-slate-900">
+          {t("priceUnavailable")}
+        </p>
+      )}
+
+      <p className="text-sm text-slate-600">{t("perAdult")}</p>
+
+      {bookingPerks.length > 0 && (
+        <div className="mt-4 space-y-2 text-sm text-slate-600">
+          {bookingPerks.map((perk) => (
+            <div key={perk} className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-primary-bright" />
+              <span>{perk}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button className="mt-6 w-full rounded-2xl bg-primary-bright text-white hover:bg-primary-dark">
+        {servicesT("reserve")}
+      </Button>
+
+      <Button
+        variant="ghost"
+        className="mt-2 w-full rounded-2xl border border-slate-200 text-slate-700 hover:bg-white"
+      >
+        {t("ctaSecondary")}
+      </Button>
+    </div>
+  );
+}
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -151,23 +256,15 @@ export default async function ServiceDetailPage({
   const travelDate = buildTravelDate();
 
   let detailData: TourDetailResponse;
-  let priceData: TourPriceResponse;
 
   try {
-    [detailData, priceData] = await Promise.all([
-      fetchRayna("/api/Tour/tourstaticdatabyid", {
-        countryId,
-        cityId,
-        tourId: tourIdNumber,
-        contractId,
-        travelDate,
-      }),
-      fetchRayna("/api/Tour/gettourprice", {
-        countryId,
-        cityId,
-        travelDate,
-      }),
-    ]);
+    detailData = await fetchRayna("/api/Tour/tourstaticdatabyid", {
+      countryId,
+      cityId,
+      tourId: tourIdNumber,
+      contractId,
+      travelDate,
+    });
   } catch {
     notFound();
   }
@@ -177,9 +274,6 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
-  const price = priceData.result?.tourPrice?.find(
-    (item) => item.cityTourID === tourIdNumber,
-  );
   const imageCandidates = [
     ...((tour.tourImages ?? []).map((img) => img.imagePath).filter(Boolean) as string[]),
     tour.imagePath,
@@ -240,7 +334,7 @@ export default async function ServiceDetailPage({
     tour.cancellationPolicyName,
     tour.duration,
     tour.tourLanguage,
-  ].filter(Boolean);
+  ].filter((value): value is string => Boolean(value));
 
   return (
     <div className="bg-white">
@@ -472,53 +566,17 @@ export default async function ServiceDetailPage({
         </article>
 
         <aside className="space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-            <h3 className="text-xl font-semibold text-slate-900">
-              {t("booking")}
-            </h3>
-
-            <p className="text-sm text-slate-600">{t("bookingCopy")}</p>
-
-            {typeof price?.finalAdultAmount === "number" ? (
-              <p className="mt-6 text-3xl font-semibold text-slate-900">
-                {servicesT("fromPrice", {
-                  price: new Intl.NumberFormat("en", {
-                    style: "currency",
-                    currency: price.currency ?? "AED",
-                    maximumFractionDigits: 0,
-                  }).format(price.finalAdultAmount),
-                })}
-              </p>
-            ) : (
-              <p className="mt-6 text-2xl font-semibold text-slate-900">
-                {t("priceUnavailable")}
-              </p>
-            )}
-
-            <p className="text-sm text-slate-600">{t("perAdult")}</p>
-
-            {bookingPerks.length > 0 && (
-              <div className="mt-4 space-y-2 text-sm text-slate-600">
-                {bookingPerks.map((perk) => (
-                  <div key={perk} className="flex items-center gap-2">
-                    <CheckCircle2 size={16} className="text-primary-bright" />
-                    <span>{perk}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <Button className="mt-6 w-full rounded-2xl bg-primary-bright text-white hover:bg-primary-dark">
-              {servicesT("reserve")}
-            </Button>
-
-            <Button
-              variant="ghost"
-              className="mt-2 w-full rounded-2xl border border-slate-200 text-slate-700 hover:bg-white"
-            >
-              {t("ctaSecondary")}
-            </Button>
-          </div>
+          <Suspense fallback={<BookingCardSkeleton />}>
+            <BookingCard
+              cityId={cityId}
+              countryId={countryId}
+              tourId={tourIdNumber}
+              travelDate={travelDate}
+              bookingPerks={bookingPerks}
+              servicesT={servicesT}
+              t={t}
+            />
+          </Suspense>
         </aside>
       </section>
     </div>

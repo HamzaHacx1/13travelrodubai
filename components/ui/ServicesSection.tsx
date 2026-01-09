@@ -52,6 +52,61 @@ const RAYNA_CITY_IDS = {
   abuDhabi: 13236,
 };
 const PAGE_SIZE = 9;
+const SERVICES_CACHE_KEY = "rayna-services-cache-v1";
+const SERVICES_CACHE_TTL_MS = 1000 * 60 * 10;
+
+let servicesCache: { timestamp: number; data: ServiceCard[] } | null = null;
+
+const readServicesCache = () => {
+  if (
+    servicesCache &&
+    Date.now() - servicesCache.timestamp < SERVICES_CACHE_TTL_MS
+  ) {
+    return servicesCache.data;
+  }
+  return null;
+};
+
+const hydrateServicesCache = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const raw = window.sessionStorage.getItem(SERVICES_CACHE_KEY);
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw) as {
+      timestamp?: number;
+      data?: ServiceCard[];
+    };
+    if (!Array.isArray(parsed.data) || typeof parsed.timestamp !== "number") {
+      return null;
+    }
+    if (Date.now() - parsed.timestamp > SERVICES_CACHE_TTL_MS) {
+      return null;
+    }
+    servicesCache = { timestamp: parsed.timestamp, data: parsed.data };
+    return parsed.data;
+  } catch {
+    return null;
+  }
+};
+
+const writeServicesCache = (data: ServiceCard[]) => {
+  servicesCache = { timestamp: Date.now(), data };
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(
+      SERVICES_CACHE_KEY,
+      JSON.stringify(servicesCache),
+    );
+  } catch {
+    return;
+  }
+};
 
 const fallbackServices: ServiceFallback[] = [
   {
@@ -128,7 +183,9 @@ const buildTravelDate = () => {
 const ServicesSection = () => {
   const t = useTranslations("Services");
   const formatter = useFormatter();
-  const [services, setServices] = useState<ServiceCard[]>([]);
+  const [services, setServices] = useState<ServiceCard[]>(
+    () => readServicesCache() ?? [],
+  );
   const [selectedCity, setSelectedCity] = useState("All");
   const [page, setPage] = useState(1);
 
@@ -140,6 +197,13 @@ const ServicesSection = () => {
       })),
     [t],
   );
+
+  useEffect(() => {
+    const cached = hydrateServicesCache();
+    if (cached && cached.length > 0) {
+      setServices((current) => (current.length > 0 ? current : cached));
+    }
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -223,13 +287,15 @@ const ServicesSection = () => {
       });
 
       if (!controller.signal.aborted) {
+        writeServicesCache(mapped);
         setServices(mapped);
       }
     };
 
     loadServices().catch(() => {
       if (!controller.signal.aborted) {
-        setServices([]);
+        const cached = readServicesCache();
+        setServices(cached ?? []);
       }
     });
 
