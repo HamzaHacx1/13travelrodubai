@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildRaynaUrl, getRaynaConfig, injectRaynaToken } from "@/lib/rayna";
 
 type RouteContext = {
-  params: {
-    path?: string[];
-  };
+  params: Promise<{
+    path: string[];
+  }>;
 };
 
 const proxyRaynaRequest = async (
@@ -13,8 +13,8 @@ const proxyRaynaRequest = async (
   context: RouteContext,
 ) => {
   const { baseUrl, token, headers, authScheme } = getRaynaConfig();
-  const params = await Promise.resolve(context.params);
-  const path = (params.path ?? []).join("/");
+  const params = await context.params;
+  const path = params.path.join("/");
 
   if (!path) {
     return NextResponse.json(

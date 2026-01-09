@@ -171,6 +171,10 @@ const ServicesSection = () => {
       });
 
       const ranked = (response.tours ?? []).sort((a, b) => {
+        const imageScore = Number(Boolean(b.image)) - Number(Boolean(a.image));
+        if (imageScore !== 0) {
+          return imageScore;
+        }
         const recommendedScore =
           Number(Boolean(b.recommended)) - Number(Boolean(a.recommended));
         if (recommendedScore !== 0) {
@@ -189,7 +193,15 @@ const ServicesSection = () => {
         const reviewCountValue = Number(tour.reviewCount ?? 0);
         const detailsHref =
           tour.cityId && tour.countryId && tour.contractId
-            ? `/services/${tour.tourId}?cityId=${tour.cityId}&countryId=${tour.countryId}&contractId=${tour.contractId}`
+            ? {
+                pathname: "/services/[tourId]" as const,
+                params: { tourId: String(tour.tourId) },
+                query: {
+                  cityId: String(tour.cityId),
+                  countryId: String(tour.countryId),
+                  contractId: String(tour.contractId),
+                },
+              }
             : undefined;
 
         return {

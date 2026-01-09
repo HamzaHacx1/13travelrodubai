@@ -9,6 +9,10 @@ export const routing = defineRouting({
   localePrefix: "as-needed",
   pathnames: {
     "/": "/",
+    "/services/[tourId]": {
+      en: "/services/[tourId]",
+      ro: "/services/[tourId]",
+    },
     "/services/museum-of-the-future": {
       en: "/services/museum-of-the-future",
       ro: "/services/museum-of-the-future",

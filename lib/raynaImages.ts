@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import type { UploadApiResponse } from "cloudinary";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import type { ReadableStream as NodeReadableStream } from "node:stream/web";
 
 const DEFAULT_RAYNA_IMAGE_BASE_URL =
   "https://d1i3enf1i5tb1f.cloudfront.net/";
@@ -427,7 +428,7 @@ export const uploadRaynaImagesToCloudinary = async (
       }
 
       const stream = Readable.fromWeb(
-        response.body as unknown as ReadableStream<Uint8Array>,
+        response.body as unknown as NodeReadableStream<Uint8Array>,
       );
       const result = await uploadStream(stream, {
         folder: `rayna/${safeProductId}`,

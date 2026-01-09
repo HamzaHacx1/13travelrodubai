@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 import {
   Bell,
   Coins,
@@ -41,6 +42,7 @@ const Header = () => {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams<{ tourId?: string }>();
   const alternateLocale: Locale = locale === "en" ? "ro" : "en";
   const [currency, setCurrency] = useState<CurrencyCode>(currencyOptions[0].code);
 
@@ -48,6 +50,19 @@ const Header = () => {
     setIsMenuOpen(false);
 
     if (nextLocale === locale || !pathname) {
+      return;
+    }
+
+    if (pathname === "/services/[tourId]") {
+      const tourId = params?.tourId;
+      if (!tourId) {
+        return;
+      }
+
+      router.replace(
+        { pathname, params: { tourId } },
+        { locale: nextLocale },
+      );
       return;
     }
 

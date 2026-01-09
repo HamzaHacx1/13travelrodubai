@@ -161,6 +161,18 @@ const SearchSection = () => {
       const mappedResults = (response.tours ?? []).map((tour, index) => {
         const ratingValue = Number(tour.rating ?? 0);
         const reviewCountValue = Number(tour.reviewCount ?? 0);
+        const href =
+          tour.cityId && tour.countryId && tour.contractId
+            ? {
+                pathname: "/services/[tourId]" as const,
+                params: { tourId: String(tour.tourId) },
+                query: {
+                  cityId: String(tour.cityId),
+                  countryId: String(tour.countryId),
+                  contractId: String(tour.contractId),
+                },
+              }
+            : undefined;
 
         return {
           id: tour.tourId,
@@ -170,10 +182,7 @@ const SearchSection = () => {
           reviewCount: Number.isFinite(reviewCountValue) ? reviewCountValue : 0,
           priceFrom: tour.priceFrom,
           currency: tour.currency,
-          href:
-            tour.cityId && tour.countryId && tour.contractId
-              ? `/services/${tour.tourId}?cityId=${tour.cityId}&countryId=${tour.countryId}&contractId=${tour.contractId}`
-              : undefined,
+          href,
         };
       });
 
