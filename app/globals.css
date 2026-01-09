@@ -9,8 +9,8 @@
   --color-secondary: #AEFF02;
   --color-background: #F3F4F6;
   --color-text: #111827;
-  --font-funnel: var(--font-funnel-sans), "Funnel Sans", sans-serif;
-  --font-tiktok: var(--font-tiktok-sans), "TikTok Sans", sans-serif;
+  --font-funnel: var(--font-figtree), "Figtree", sans-serif;
+  --font-tiktok: var(--font-figtree), "Figtree", sans-serif;
 }
 
 @theme inline {

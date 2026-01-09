@@ -1,6 +1,6 @@
 import "../../globals.css";
 
-import { Figtree, Funnel_Sans, Geist_Mono, TikTok_Sans } from "next/font/google";
+import { Geist_Mono, Figtree } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -17,16 +17,6 @@ const figtree = Figtree({
   variable: "--font-figtree",
   subsets: ["latin"],
   display: "swap",
-});
-
-const funnelSans = Funnel_Sans({
-  variable: "--font-funnel-sans",
-  subsets: ["latin"],
-})
-const tiktokSans = TikTok_Sans({
-  variable: "--font-tiktok-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],  // include desired weights if available
 });
 export const metadata: Metadata = {
   title: "13 Travelro Dubai",
@@ -62,7 +52,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${figtree.className} ${funnelSans.variable} ${tiktokSans.variable} ${geistMono.variable} antialiased`}
+        className={`${figtree.className} ${figtree.variable} ${geistMono.variable} antialiased`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}

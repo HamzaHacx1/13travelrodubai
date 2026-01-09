@@ -8,21 +8,26 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import React, { useState } from "react";
+import { useTranslations, useFormatter } from "next-intl";
+import { useMemo, useState } from "react";
 
+import FallbackImage from "@/components/ui/FallbackImage";
+import { Link as LocalizedLink } from "@/navigation";
+const RAYNA_COUNTRY_ID = 13063;
 
-const options = [
-  "Dubai",
-  "Abu Dhabi",
-  "Sharjah",
-  "Ajman",
-  "Fujairah",
-  "Ras Al Khaimah",
-  "Umm Al Quwain",
-  "All Cities",
-];
+const CITY_ID_BY_NAME: Record<string, number | null> = {
+  Dubai: 13668,
+  "Abu Dhabi": 13236,
+  Sharjah: 14777,
+  Ajman: 13160,
+  Fujairah: 13765,
+  "Ras Al Khaimah": 14644,
+  "Umm Al Quwain": null,
+};
+
+const CITY_OPTIONS = [...Object.keys(CITY_ID_BY_NAME), "All Cities"];
 
 const currencyOptions = [
   { code: "AED", labelKey: "aed" },
@@ -50,11 +55,138 @@ const reasons = [
   },
 ];
 
+type RaynaTour = {
+  tourId: number;
+  tourName: string;
+  image?: string;
+  rating?: number;
+  reviewCount?: number;
+  cityId?: number;
+  countryId?: number;
+  contractId?: number;
+  priceFrom?: number;
+  currency?: string;
+};
+
+type RaynaTourResponse = {
+  tours?: RaynaTour[];
+};
+
+type SearchResult = {
+  id: number;
+  title: string;
+  image: string;
+  rating: number;
+  reviewCount: number;
+  priceFrom?: number;
+  currency?: string;
+  href?: Parameters<typeof LocalizedLink>[0]["href"];
+};
+
+const buildTravelDate = () => {
+  const travelDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+  return travelDate.toISOString().slice(0, 10);
+};
+
 const SearchSection = () => {
   const t = useTranslations("Search");
+  const servicesT = useTranslations("Services");
+  const formatter = useFormatter();
   const [city, setCity] = useState("");
   const [activity, setActivity] = useState("");
   const [currency, setCurrency] = useState(currencyOptions[0].code);
+  const [isSearching, setIsSearching] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const selectedCityIds = useMemo(() => {
+    if (!city) {
+      return [];
+    }
+    if (city === "All Cities") {
+      return Object.values(CITY_ID_BY_NAME).filter(
+        (id): id is number => typeof id === "number",
+      );
+    }
+    const cityId = CITY_ID_BY_NAME[city];
+    return typeof cityId === "number" ? [cityId] : [];
+  }, [city]);
+
+  const runSearch = async () => {
+    if (!city) {
+      setErrorMessage(t("missingCity"));
+      setHasSearched(false);
+      return;
+    }
+
+    if (selectedCityIds.length === 0) {
+      setErrorMessage(t("unsupportedCity"));
+      setHasSearched(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setErrorMessage("");
+    setHasSearched(true);
+
+    const fetchJson = async <T,>(url: string, payload: Record<string, unknown>) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Rayna request failed: ${response.status}`);
+      }
+
+      return (await response.json()) as T;
+    };
+
+    try {
+      const query = activity.trim();
+      const travelDate = buildTravelDate();
+      const response = await fetchJson<RaynaTourResponse>("/api/rayna/tours", {
+        cityIds: selectedCityIds,
+        countryId: RAYNA_COUNTRY_ID,
+        travelDate,
+        query,
+        limit: 9,
+      });
+
+      const mappedResults = (response.tours ?? []).map((tour, index) => {
+        const ratingValue = Number(tour.rating ?? 0);
+        const reviewCountValue = Number(tour.reviewCount ?? 0);
+
+        return {
+          id: tour.tourId,
+          title: tour.tourName,
+          image: tour.image ?? "",
+          rating: Number.isFinite(ratingValue) ? ratingValue : 0,
+          reviewCount: Number.isFinite(reviewCountValue) ? reviewCountValue : 0,
+          priceFrom: tour.priceFrom,
+          currency: tour.currency,
+          href:
+            tour.cityId && tour.countryId && tour.contractId
+              ? `/services/${tour.tourId}?cityId=${tour.cityId}&countryId=${tour.countryId}&contractId=${tour.contractId}`
+              : undefined,
+        };
+      });
+
+      setResults(mappedResults);
+    } catch (error) {
+      setResults([]);
+      setErrorMessage(
+        error instanceof Error ? error.message : t("noResults"),
+      );
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
 
   return (
@@ -83,7 +215,7 @@ const SearchSection = () => {
                   <option value="" disabled>
                     {t("cityPlaceholder")}
                   </option>
-                  {options.map((option) => (
+                  {CITY_OPTIONS.map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -120,10 +252,108 @@ const SearchSection = () => {
           <button
             type="button"
             className="w-full rounded-2xl bg-primary-bright py-4 font-semibold text-white shadow hover:bg-primary-dark transition"
+            onClick={runSearch}
+            disabled={isSearching}
           >
-            {t("button")}
+            {isSearching ? t("loading") : t("button")}
           </button>
+          {errorMessage && (
+            <p className="text-sm font-semibold text-red-500">{errorMessage}</p>
+          )}
         </div>
+
+        {hasSearched && (
+          <div className="flex flex-1 flex-col gap-4 rounded-3xl bg-white p-5 shadow-lg">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-tiktok text-xs tracking-[0.4em] text-primary-bright">
+                  {t("resultsTitle")}
+                </p>
+                <p className="text-lg font-semibold text-slate-900">
+                  {t("resultsCount", { count: results.length })}
+                </p>
+              </div>
+            </div>
+            {isSearching ? (
+              <p className="text-sm text-slate-500">{t("loading")}</p>
+            ) : results.length > 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {results.map((result, index) => {
+                  const hasReviews =
+                    result.rating > 0 && result.reviewCount > 0;
+
+                  return (
+                    <article
+                      key={result.id}
+                      className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                    >
+                      <div className="relative aspect-[4/3] w-full overflow-hidden">
+                        <FallbackImage
+                          src={result.image}
+                          alt={result.title}
+                          fill
+                          className="object-cover"
+                          sizes="(min-width: 768px) 50vw, 100vw"
+                          priority={index < 2}
+                        />
+                        {typeof result.priceFrom === "number" && (
+                          <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                            {servicesT("fromPrice", {
+                              price: formatter.number(result.priceFrom, {
+                                style: "currency",
+                                currency: result.currency ?? "AED",
+                                maximumFractionDigits: 0,
+                              }),
+                            })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-1 flex-col gap-2 px-4 py-4">
+                        {result.href ? (
+                          <LocalizedLink
+                            href={result.href}
+                            className="font-funnel text-base text-slate-900 transition hover:text-primary-bright"
+                          >
+                            {result.title}
+                          </LocalizedLink>
+                        ) : (
+                          <h3 className="font-funnel text-base text-slate-900">
+                            {result.title}
+                          </h3>
+                        )}
+                        {hasReviews && (
+                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                            <Star className="text-primary-bright" size={14} />
+                            <span className="font-semibold text-slate-800">
+                              {result.rating.toFixed(2)}
+                            </span>
+                            <span>
+                              (
+                              {servicesT("reviewCount", {
+                                count: result.reviewCount,
+                              })}
+                              )
+                            </span>
+                          </div>
+                        )}
+                        {result.href && (
+                          <LocalizedLink
+                            href={result.href}
+                            className="mt-2 w-fit rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
+                          >
+                            {servicesT("reserve")}
+                          </LocalizedLink>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">{t("noResults")}</p>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-1 flex-col gap-4 rounded-2xl border border-white/20  bg-gradient-to-b from-slate-900/80 to-slate-900/30 p-4 sm:p-6 text-white">
           <p className="font-tiktok text-xs tracking-[0.4em] text-secondary">
