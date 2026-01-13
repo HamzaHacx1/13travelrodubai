@@ -340,7 +340,9 @@ export default async function ServiceDetailPage({
 
   return (
     <div className="bg-white">
-      <Header />
+      <Suspense fallback={<div className="h-16" />}>
+        <Header />
+      </Suspense>
       <section className="bg-slate-950 text-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-0">
           <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">

@@ -3,6 +3,7 @@ import { Link as LocalizedLink } from "@/navigation";
 import { Button } from "@/components/ui/button";
 import { routing, type Locale } from "@/i18n";
 import Header from "@/components/ui/Header";
+import { Suspense } from "react";
 import type { ComponentType } from "react";
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
@@ -547,7 +548,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   return (
     <div className="bg-white">
-      <Header />
+      <Suspense fallback={<div className="h-16" />}>
+        <Header />
+      </Suspense>
       {/* HERO & BREADCRUMBS */}
       <section className="bg-slate-950 text-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-0">

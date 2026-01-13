@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import Footer from "@/components/ui/Footer";
 import Header from "@/components/ui/Header";
 import Hero from "@/components/ui/Hero";
@@ -10,7 +12,9 @@ import TestimonialsStrip from "@/components/ui/TestimonialsStrip";
 export default function Page() {
   return (
     <>
-      <Header />
+      <Suspense fallback={<div className="h-16" />}>
+        <Header />
+      </Suspense>
       <Hero />
       <ServicesSection />
       <DestinationsPreview />
