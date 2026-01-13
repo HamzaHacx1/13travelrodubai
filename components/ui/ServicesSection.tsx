@@ -23,10 +23,6 @@ type ServiceCard = {
   href?: LocalizedHref;
 };
 
-type ServiceFallback = Omit<ServiceCard, "title"> & {
-  titleKey: string;
-};
-
 type RaynaTour = {
   tourId: number;
   tourName: string;
@@ -51,6 +47,7 @@ const RAYNA_CITY_IDS = {
   dubai: 13668,
   abuDhabi: 13236,
 };
+const ALLOWED_CITY_IDS = new Set<number>(Object.values(RAYNA_CITY_IDS));
 const PAGE_SIZE = 9;
 const SERVICES_CACHE_KEY = "rayna-services-cache-v1";
 const SERVICES_CACHE_TTL_MS = 1000 * 60 * 10;
@@ -108,73 +105,6 @@ const writeServicesCache = (data: ServiceCard[]) => {
   }
 };
 
-const fallbackServices: ServiceFallback[] = [
-  {
-    id: 1,
-    titleKey: "museumFuture",
-    image: "",
-    priceFrom: 45,
-    reviews: { rating: 4.8, count: 1250 },
-    href: { pathname: "/services/museum-of-the-future" },
-  },
-  {
-    id: 2,
-    titleKey: "burjKhalifaSuite",
-    image: "",
-    priceFrom: 1299,
-    reviews: { rating: 5, count: 96 },
-  },
-  {
-    id: 3,
-    titleKey: "oldDubaiCulinary",
-    image: "",
-    priceFrom: 189,
-    reviews: { rating: 4.8, count: 142 },
-  },
-  {
-    id: 4,
-    titleKey: "yachtCharterPalm",
-    image: "",
-    priceFrom: 2100,
-    reviews: { rating: 4.95, count: 65 },
-  },
-  {
-    id: 5,
-    titleKey: "hotAirBalloon",
-    image: "",
-    priceFrom: 379,
-    reviews: { rating: 4.7, count: 118 },
-  },
-  {
-    id: 6,
-    titleKey: "louvreTransfer",
-    image: "",
-    priceFrom: 420,
-    reviews: { rating: 4.85, count: 73 },
-  },
-  {
-    id: 7,
-    titleKey: "helicopterCircuit",
-    image: "",
-    priceFrom: 560,
-    reviews: { rating: 4.92, count: 88 },
-  },
-  {
-    id: 8,
-    titleKey: "palmSunsetDinner",
-    image: "",
-    priceFrom: 980,
-    reviews: { rating: 4.97, count: 54 },
-  },
-  {
-    id: 9,
-    titleKey: "wellnessHammam",
-    image: "",
-    priceFrom: 310,
-    reviews: { rating: 4.75, count: 61 },
-  },
-];
-
 const buildTravelDate = () => {
   const travelDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
   return travelDate.toISOString().slice(0, 10);
@@ -183,30 +113,21 @@ const buildTravelDate = () => {
 const ServicesSection = () => {
   const t = useTranslations("Services");
   const formatter = useFormatter();
-  const [services, setServices] = useState<ServiceCard[]>(
-    () => readServicesCache() ?? [],
-  );
+  const initialServices = readServicesCache() ?? [];
+  const [services, setServices] = useState<ServiceCard[]>(initialServices);
+  const [isLoading, setIsLoading] = useState(initialServices.length === 0);
   const [selectedCity, setSelectedCity] = useState("All");
   const [page, setPage] = useState(1);
 
-  const localizedFallback = useMemo(
-    () =>
-      fallbackServices.map((service) => ({
-        ...service,
-        title: t(`cards.${service.titleKey}`),
-      })),
-    [t],
-  );
-
-  useEffect(() => {
-    const cached = hydrateServicesCache();
-    if (cached && cached.length > 0) {
-      setServices((current) => (current.length > 0 ? current : cached));
-    }
-  }, []);
-
   useEffect(() => {
     const controller = new AbortController();
+    const cached = hydrateServicesCache();
+    const hasCachedData = cached && cached.length > 0;
+
+    if (hasCachedData) {
+      setServices((current) => (current.length > 0 ? current : cached));
+      setIsLoading(false);
+    }
 
     const fetchJson = async <T,>(url: string, payload: Record<string, unknown>) => {
       const response = await fetch(url, {
@@ -227,6 +148,9 @@ const ServicesSection = () => {
     };
 
     const loadServices = async () => {
+      if (!hasCachedData) {
+        setIsLoading(true);
+      }
       const travelDate = buildTravelDate();
       const response = await fetchJson<RaynaTourResponse>("/api/rayna/tours", {
         cityIds: [RAYNA_CITY_IDS.dubai, RAYNA_CITY_IDS.abuDhabi],
@@ -287,8 +211,15 @@ const ServicesSection = () => {
       });
 
       if (!controller.signal.aborted) {
-        writeServicesCache(mapped);
-        setServices(mapped);
+        const filtered = mapped.filter((service) => {
+          if (!service.cityId) {
+            return false;
+          }
+          return ALLOWED_CITY_IDS.has(service.cityId);
+        });
+        writeServicesCache(filtered);
+        setServices(filtered);
+        setIsLoading(false);
       }
     };
 
@@ -296,33 +227,33 @@ const ServicesSection = () => {
       if (!controller.signal.aborted) {
         const cached = readServicesCache();
         setServices(cached ?? []);
+        setIsLoading(false);
       }
     });
 
     return () => {
       controller.abort();
     };
-  }, [localizedFallback]);
+  }, []);
 
-  const visibleServices = services.length > 0 ? services : localizedFallback;
   const availableCities = useMemo(() => {
     const citySet = new Set<string>();
-    visibleServices.forEach((service) => {
+    services.forEach((service) => {
       if (service.cityName) {
         citySet.add(service.cityName);
       }
     });
     return Array.from(citySet).sort();
-  }, [visibleServices]);
+  }, [services]);
 
   const filteredServices = useMemo(() => {
     if (selectedCity === "All" || availableCities.length === 0) {
-      return visibleServices;
+      return services;
     }
-    return visibleServices.filter(
+    return services.filter(
       (service) => service.cityName === selectedCity,
     );
-  }, [availableCities.length, selectedCity, visibleServices]);
+  }, [availableCities.length, selectedCity, services]);
 
   const totalPages = Math.max(1, Math.ceil(filteredServices.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -330,6 +261,8 @@ const ServicesSection = () => {
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
+  const showSkeletons = isLoading && services.length === 0;
+  const skeletonCards = Array.from({ length: PAGE_SIZE }, (_, index) => index);
 
   useEffect(() => {
     if (currentPage !== page) {
@@ -338,7 +271,10 @@ const ServicesSection = () => {
   }, [currentPage, page]);
 
   return (
-    <section className="mx-auto mt-16 w-full max-w-6xl px-4 sm:px-6 lg:px-0">
+    <section
+      id="experiences"
+      className="mx-auto mt-16 w-full max-w-6xl px-4 sm:px-6 lg:px-0"
+    >
       <div className="flex flex-col items-start gap-4 text-white">
         <p className="font-tiktok text-xs tracking-[0.4em] text-secondary">
           {t("eyebrow")}
@@ -392,80 +328,98 @@ const ServicesSection = () => {
         </div>
       )}
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {paginatedServices.map((service, index) => {
-          const hasReviews =
-            service.reviews.rating > 0 && service.reviews.count > 0;
-
-          return (
-            <article
-              key={service.id}
-              className="group flex flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl"
+      {showSkeletons ? (
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {skeletonCards.map((index) => (
+            <div
+              key={`skeleton-${index}`}
+              className="flex flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-lg"
             >
-              <div className="relative aspect-[4/3] w-full overflow-hidden">
-                <FallbackImage
-                  src={service.image}
-                  alt={service.title}
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                  sizes="(min-width: 1280px) 380px, (min-width: 768px) 50vw, 100vw"
-                  priority={index < 3}
-                />
-                {typeof service.priceFrom === "number" && (
-                  <span className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-                    {t("fromPrice", {
-                      price: formatter.number(service.priceFrom, {
-                        style: "currency",
-                        currency: service.currency ?? "AED",
-                        maximumFractionDigits: 0,
-                      }),
-                    })}
-                  </span>
-                )}
-              </div>
-
-            <div className="flex flex-1 flex-col gap-3 px-5 py-6">
-              <h3 className="font-funnel text-lg text-foreground">
-                {service.title}
-              </h3>
-              {hasReviews && (
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <Star className="text-primary-bright" size={16} />
-                  <span className="font-semibold text-slate-800">
-                    {service.reviews.rating.toFixed(2)}
-                  </span>
-                  <span>
-                    (
-                    {t("reviewCount", {
-                      count: service.reviews.count,
-                    })}
-                    )
-                  </span>
-                </div>
-              )}
-              <div className="mt-auto flex items-center justify-between text-sm text-slate-600">
-                <span>{t("flexibleCancellation")}</span>
-                {service.href ? (
-                  <LocalizedLink
-                    href={service.href}
-                    className="rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
-                  >
-                    {t("reserve")}
-                  </LocalizedLink>
-                ) : (
-                  <button
-                    type="button"
-                    className="rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
-                  >
-                    {t("reserve")}
-                  </button>
-                )}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-200/70 animate-pulse" />
+              <div className="flex flex-1 flex-col gap-3 px-5 py-6 animate-pulse">
+                <div className="h-5 w-3/4 rounded-full bg-slate-200" />
+                <div className="h-4 w-24 rounded-full bg-slate-200" />
+                <div className="mt-auto h-7 w-20 rounded-full bg-slate-200" />
               </div>
             </div>
-            </article>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {paginatedServices.map((service, index) => {
+            const hasReviews =
+              service.reviews.rating > 0 && service.reviews.count > 0;
+
+            return (
+              <article
+                key={service.id}
+                className="group flex flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl"
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <FallbackImage
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                    sizes="(min-width: 1280px) 380px, (min-width: 768px) 50vw, 100vw"
+                    priority={index < 3}
+                  />
+                  {typeof service.priceFrom === "number" && (
+                    <span className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                      {t("fromPrice", {
+                        price: formatter.number(service.priceFrom, {
+                          style: "currency",
+                          currency: service.currency ?? "AED",
+                          maximumFractionDigits: 0,
+                        }),
+                      })}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-1 flex-col gap-3 px-5 py-6">
+                  <h3 className="font-funnel text-lg text-foreground">
+                    {service.title}
+                  </h3>
+                  {hasReviews && (
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <Star className="text-primary-bright" size={16} />
+                      <span className="font-semibold text-slate-800">
+                        {service.reviews.rating.toFixed(2)}
+                      </span>
+                      <span>
+                        (
+                        {t("reviewCount", {
+                          count: service.reviews.count,
+                        })}
+                        )
+                      </span>
+                    </div>
+                  )}
+                  <div className="mt-auto flex items-center justify-between text-sm text-slate-600">
+                    <span>{t("flexibleCancellation")}</span>
+                    {service.href ? (
+                      <LocalizedLink
+                        href={service.href}
+                        className="rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
+                      >
+                        {t("reserve")}
+                      </LocalizedLink>
+                    ) : (
+                      <button
+                        type="button"
+                        className="rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
+                      >
+                        {t("reserve")}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
 
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-center gap-3 text-sm text-slate-600">

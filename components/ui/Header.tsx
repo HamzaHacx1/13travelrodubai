@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   Bell,
   Coins,
@@ -21,10 +21,7 @@ import { Link as LocalizedLink, usePathname, useRouter } from "@/navigation";
 
 
 const navLinks = [
-  { labelKey: "stays", href: "#stays" },
   { labelKey: "experiences", href: "#experiences" },
-  { labelKey: "dining", href: "#dining" },
-  { labelKey: "concierge", href: "#concierge" },
 ];
 
 const currencyOptions = [
@@ -43,6 +40,14 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams<{ tourId?: string }>();
+  const searchParams = useSearchParams();
+  const preservedQuery = useMemo(() => {
+    const entries = Array.from(searchParams.entries());
+    if (entries.length === 0) {
+      return undefined;
+    }
+    return Object.fromEntries(entries);
+  }, [searchParams]);
   const alternateLocale: Locale = locale === "en" ? "ro" : "en";
   const [currency, setCurrency] = useState<CurrencyCode>(currencyOptions[0].code);
 
@@ -60,13 +65,16 @@ const Header = () => {
       }
 
       router.replace(
-        { pathname, params: { tourId } },
+        { pathname, params: { tourId }, query: preservedQuery },
         { locale: nextLocale },
       );
       return;
     }
 
-    router.replace(pathname, { locale: nextLocale });
+    router.replace(
+      preservedQuery ? { pathname, query: preservedQuery } : pathname,
+      { locale: nextLocale },
+    );
   };
 
   const handleCurrencyChange = (nextCurrency: CurrencyCode) => {

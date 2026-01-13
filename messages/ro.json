@@ -110,7 +110,10 @@
     "policiesTitle": "Politici",
     "ctaPrimary": "Verifică disponibilitatea",
     "ctaSecondary": "Distribuie itinerariul",
-    "note": "Bilet furnizat de Rayna Tours."
+    "note": "Bilet furnizat de Rayna Tours.",
+    "galleryPrevious": "Anterior",
+    "galleryNext": "Următor",
+    "galleryClose": "Închide"
   },
   "Destinations": {
     "eyebrow": "Trasee populare",

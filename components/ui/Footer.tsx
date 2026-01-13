@@ -8,9 +8,7 @@ const footerLinks = [
   {
     titleKey: "plan",
     links: [
-      { key: "stays", href: "#stays" },
       { key: "experiences", href: "#experiences" },
-      { key: "dining", href: "#dining" },
     ],
   },
   {

@@ -20,11 +20,6 @@ const RAYNA_COUNTRY_ID = 13063;
 const CITY_ID_BY_NAME: Record<string, number | null> = {
   Dubai: 13668,
   "Abu Dhabi": 13236,
-  Sharjah: 14777,
-  Ajman: 13160,
-  Fujairah: 13765,
-  "Ras Al Khaimah": 14644,
-  "Umm Al Quwain": null,
 };
 
 const CITY_OPTIONS = [...Object.keys(CITY_ID_BY_NAME), "All Cities"];

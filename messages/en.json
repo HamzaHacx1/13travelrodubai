@@ -110,7 +110,10 @@
     "policiesTitle": "Policies",
     "ctaPrimary": "Check availability",
     "ctaSecondary": "Share itinerary",
-    "note": "Ticket supplied by Rayna Tours."
+    "note": "Ticket supplied by Rayna Tours.",
+    "galleryPrevious": "Previous",
+    "galleryNext": "Next",
+    "galleryClose": "Close"
   },
   "Destinations": {
     "eyebrow": "Trending routes",

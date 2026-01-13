@@ -15,8 +15,8 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import FallbackImage from "@/components/ui/FallbackImage";
 import Header from "@/components/ui/Header";
+import ServiceGallery from "@/components/ui/ServiceGallery";
 import { Link as LocalizedLink } from "@/navigation";
 import { getRaynaConfig } from "@/lib/rayna";
 import {
@@ -283,10 +283,12 @@ export default async function ServiceDetailPage({
     .filter(Boolean);
   const uniqueCandidates = Array.from(new Set(proxyCandidates));
 
-  const galleryImages = galleryLayout.map((span, index) => ({
-    span,
-    src: uniqueCandidates[index] ?? "",
-  }));
+  const galleryImages = uniqueCandidates
+    .slice(0, galleryLayout.length)
+    .map((src, index) => ({
+      span: galleryLayout[index] ?? "",
+      src,
+    }));
 
   const locationLabel = [tour.cityName, tour.countryName]
     .filter(Boolean)
@@ -343,23 +345,7 @@ export default async function ServiceDetailPage({
         <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-0">
           <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div className="order-1">
-              <div className="grid auto-rows-[180px] gap-4 rounded-3xl bg-white p-4 shadow-xl sm:p-6 lg:grid-cols-2">
-                {galleryImages.map((image, index) => (
-                  <div
-                    key={`${image.src}-${index}`}
-                    className={`relative overflow-hidden rounded-2xl ${image.span}`}
-                  >
-                    <FallbackImage
-                      src={image.src}
-                      alt={tour.tourName}
-                      fill
-                      sizes="(min-width: 1024px) 40vw, 100vw"
-                      className="object-cover"
-                      priority={index === 0}
-                    />
-                  </div>
-                ))}
-              </div>
+              <ServiceGallery images={galleryImages} alt={tour.tourName} />
             </div>
 
             <div className="order-2 space-y-6">
