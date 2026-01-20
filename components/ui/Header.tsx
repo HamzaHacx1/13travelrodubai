@@ -6,11 +6,9 @@ import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import {
-  Bell,
   Coins,
   Globe,
   Menu,
-  Search,
   User,
   X,
 } from "lucide-react";
@@ -115,22 +113,6 @@ const Header = () => {
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Search"
-            className="text-primary-bright hover:bg-primary-bright/10"
-          >
-            <Search size={18} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Notifications"
-            className="text-primary-bright hover:bg-primary-bright/10"
-          >
-            <Bell size={18} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
             aria-label="Account"
             className="text-primary-bright hover:bg-primary-bright/10"
           >
@@ -160,9 +142,6 @@ const Header = () => {
               ))}
             </select>
           </div>
-          <Button className="hidden rounded-full bg-primary-bright px-5 text-white shadow-sm hover:bg-primary-dark md:inline-flex">
-            {t("planTrip")}
-          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -189,9 +168,6 @@ const Header = () => {
             ))}
           </nav>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button className="flex-[100%] rounded-full bg-primary-bright text-white hover:bg-primary-dark">
-              {t("planTrip")}
-            </Button>
             <button
               type="button"
               aria-label={t("languageLabel")}

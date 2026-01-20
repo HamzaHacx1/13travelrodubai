@@ -349,12 +349,8 @@ const ServicesSection = () => {
           {paginatedServices.map((service, index) => {
             const hasReviews =
               service.reviews.rating > 0 && service.reviews.count > 0;
-
-            return (
-              <article
-                key={service.id}
-                className="group flex flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl"
-              >
+            const card = (
+              <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl">
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <FallbackImage
                     src={service.image}
@@ -396,26 +392,25 @@ const ServicesSection = () => {
                       </span>
                     </div>
                   )}
-                  <div className="mt-auto flex items-center justify-between text-sm text-slate-600">
-                    <span>{t("flexibleCancellation")}</span>
-                    {service.href ? (
-                      <LocalizedLink
-                        href={service.href}
-                        className="rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
-                      >
-                        {t("reserve")}
-                      </LocalizedLink>
-                    ) : (
-                      <button
-                        type="button"
-                        className="rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
-                      >
-                        {t("reserve")}
-                      </button>
-                    )}
+                  <div className="mt-auto text-sm text-slate-600">
+                    {t("flexibleCancellation")}
                   </div>
                 </div>
               </article>
+            );
+
+            return (
+              service.href ? (
+                <LocalizedLink
+                  key={service.id}
+                  href={service.href}
+                  className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-bright/30 rounded-3xl"
+                >
+                  {card}
+                </LocalizedLink>
+              ) : (
+                <div key={service.id}>{card}</div>
+              )
             );
           })}
         </div>

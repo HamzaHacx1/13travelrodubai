@@ -96,10 +96,7 @@ const SearchSection = () => {
   const [hasSearched, setHasSearched] = useState(false);
 
   const selectedCityIds = useMemo(() => {
-    if (!city) {
-      return [];
-    }
-    if (city === "All Cities") {
+    if (!city || city === "All Cities") {
       return Object.values(CITY_ID_BY_NAME).filter(
         (id): id is number => typeof id === "number",
       );
@@ -109,12 +106,6 @@ const SearchSection = () => {
   }, [city]);
 
   const runSearch = async () => {
-    if (!city) {
-      setErrorMessage(t("missingCity"));
-      setHasSearched(false);
-      return;
-    }
-
     if (selectedCityIds.length === 0) {
       setErrorMessage(t("unsupportedCity"));
       setHasSearched(false);
@@ -285,12 +276,8 @@ const SearchSection = () => {
                 {results.map((result, index) => {
                   const hasReviews =
                     result.rating > 0 && result.reviewCount > 0;
-
-                  return (
-                    <article
-                      key={result.id}
-                      className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                    >
+                  const card = (
+                    <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                       <div className="relative aspect-[4/3] w-full overflow-hidden">
                         <FallbackImage
                           src={result.image}
@@ -313,18 +300,9 @@ const SearchSection = () => {
                         )}
                       </div>
                       <div className="flex flex-1 flex-col gap-2 px-4 py-4">
-                        {result.href ? (
-                          <LocalizedLink
-                            href={result.href}
-                            className="font-funnel text-base text-slate-900 transition hover:text-primary-bright"
-                          >
-                            {result.title}
-                          </LocalizedLink>
-                        ) : (
-                          <h3 className="font-funnel text-base text-slate-900">
-                            {result.title}
-                          </h3>
-                        )}
+                        <h3 className="font-funnel text-base text-slate-900">
+                          {result.title}
+                        </h3>
                         {hasReviews && (
                           <div className="flex items-center gap-2 text-xs text-slate-500">
                             <Star className="text-primary-bright" size={14} />
@@ -340,16 +318,22 @@ const SearchSection = () => {
                             </span>
                           </div>
                         )}
-                        {result.href && (
-                          <LocalizedLink
-                            href={result.href}
-                            className="mt-2 w-fit rounded-full border border-primary-bright/40 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary-bright transition hover:bg-primary-bright/10"
-                          >
-                            {servicesT("reserve")}
-                          </LocalizedLink>
-                        )}
                       </div>
                     </article>
+                  );
+
+                  return (
+                    result.href ? (
+                      <LocalizedLink
+                        key={result.id}
+                        href={result.href}
+                        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-bright/30 rounded-2xl"
+                      >
+                        {card}
+                      </LocalizedLink>
+                    ) : (
+                      <div key={result.id}>{card}</div>
+                    )
                   );
                 })}
               </div>
