@@ -8,6 +8,7 @@ type TranslateOptions = {
 
 const DEFAULT_LIBRE_TRANSLATE_URL = "https://libretranslate.com/translate";
 const DEFAULT_MAX_CHARS = 1800;
+const DEFAULT_MAX_BATCH = 80;
 const TRANSLATE_DEBUG = process.env.TRANSLATE_DEBUG === "true";
 
 const logTranslateDebug = (message: string, meta?: Record<string, unknown>) => {
@@ -27,6 +28,16 @@ const getCharLimit = () => {
     return DEFAULT_MAX_CHARS;
   }
   return Math.max(200, Math.floor(raw));
+};
+
+const getBatchLimit = () => {
+  const raw = Number(
+    process.env.LIBRE_TRANSLATE_MAX_BATCH ?? DEFAULT_MAX_BATCH,
+  );
+  if (!Number.isFinite(raw) || raw <= 0) {
+    return DEFAULT_MAX_BATCH;
+  }
+  return Math.max(1, Math.floor(raw));
 };
 
 const splitWithSeparators = (
@@ -156,6 +167,7 @@ export const translateTexts = async (
   }
 
   const charLimit = getCharLimit();
+  const batchLimit = getBatchLimit();
   const format = options.format ?? "text";
 
   const segments: Array<{ text: string; index: number }> = [];
@@ -185,7 +197,10 @@ export const translateTexts = async (
 
   segments.forEach((segment, id) => {
     const length = segment.text.length;
-    if (currentBatch.length > 0 && currentSize + length > charLimit) {
+    if (
+      currentBatch.length > 0 &&
+      (currentSize + length > charLimit || currentBatch.length >= batchLimit)
+    ) {
       batches.push(currentBatch);
       currentBatch = [];
       currentSize = 0;
