@@ -11,7 +11,7 @@ import {
   Star,
 } from "lucide-react";
 import { useTranslations, useFormatter, useLocale } from "next-intl";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 
 import FallbackImage from "@/components/ui/FallbackImage";
 import { Link as LocalizedLink } from "@/navigation";
@@ -95,6 +95,7 @@ const SearchSection = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const lastLocaleRef = useRef(locale);
 
   const selectedCityIds = useMemo(() => {
     if (!city || city === "All Cities") {
@@ -106,7 +107,7 @@ const SearchSection = () => {
     return typeof cityId === "number" ? [cityId] : [];
   }, [city]);
 
-  const runSearch = async () => {
+  const runSearch = useCallback(async () => {
     if (selectedCityIds.length === 0) {
       setErrorMessage(t("unsupportedCity"));
       setHasSearched(false);
@@ -183,7 +184,17 @@ const SearchSection = () => {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [activity, locale, selectedCityIds, t]);
+
+  useEffect(() => {
+    if (lastLocaleRef.current === locale) {
+      return;
+    }
+    lastLocaleRef.current = locale;
+    if (hasSearched) {
+      runSearch();
+    }
+  }, [hasSearched, locale, runSearch]);
 
 
   return (

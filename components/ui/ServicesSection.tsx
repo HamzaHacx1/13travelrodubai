@@ -137,12 +137,20 @@ const ServicesSection = () => {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
+    const cached = readServicesCache(locale) ?? [];
+    setServices(cached);
+    setIsLoading(cached.length === 0);
+    setSelectedCity("All");
+    setPage(1);
+  }, [locale]);
+
+  useEffect(() => {
     const controller = new AbortController();
     const cached = hydrateServicesCache(locale);
     const hasCachedData = cached && cached.length > 0;
 
     if (hasCachedData) {
-      setServices((current) => (current.length > 0 ? current : cached));
+      setServices(cached);
       setIsLoading(false);
     }
 
@@ -263,6 +271,13 @@ const ServicesSection = () => {
     });
     return Array.from(citySet).sort();
   }, [services]);
+
+  useEffect(() => {
+    if (selectedCity !== "All" && !availableCities.includes(selectedCity)) {
+      setSelectedCity("All");
+      setPage(1);
+    }
+  }, [availableCities, selectedCity]);
 
   const filteredServices = useMemo(() => {
     if (selectedCity === "All" || availableCities.length === 0) {
