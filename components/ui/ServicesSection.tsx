@@ -2,7 +2,7 @@
 
 import { Star } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 
 import FallbackImage from "@/components/ui/FallbackImage";
 import { Link as LocalizedLink } from "@/navigation";
@@ -52,11 +52,19 @@ const PAGE_SIZE = 9;
 const SERVICES_CACHE_KEY = "rayna-services-cache-v1";
 const SERVICES_CACHE_TTL_MS = 1000 * 60 * 10;
 
-let servicesCache: { timestamp: number; data: ServiceCard[] } | null = null;
+let servicesCache: {
+  timestamp: number;
+  data: ServiceCard[];
+  locale: string;
+} | null = null;
 
-const readServicesCache = () => {
+const getServicesCacheKey = (locale: string) =>
+  `${SERVICES_CACHE_KEY}-${locale}`;
+
+const readServicesCache = (locale: string) => {
   if (
     servicesCache &&
+    servicesCache.locale === locale &&
     Date.now() - servicesCache.timestamp < SERVICES_CACHE_TTL_MS
   ) {
     return servicesCache.data;
@@ -64,41 +72,49 @@ const readServicesCache = () => {
   return null;
 };
 
-const hydrateServicesCache = () => {
+const hydrateServicesCache = (locale: string) => {
   if (typeof window === "undefined") {
     return null;
   }
   try {
-    const raw = window.sessionStorage.getItem(SERVICES_CACHE_KEY);
+    const raw = window.sessionStorage.getItem(getServicesCacheKey(locale));
     if (!raw) {
       return null;
     }
     const parsed = JSON.parse(raw) as {
       timestamp?: number;
       data?: ServiceCard[];
+      locale?: string;
     };
     if (!Array.isArray(parsed.data) || typeof parsed.timestamp !== "number") {
+      return null;
+    }
+    if (parsed.locale !== locale) {
       return null;
     }
     if (Date.now() - parsed.timestamp > SERVICES_CACHE_TTL_MS) {
       return null;
     }
-    servicesCache = { timestamp: parsed.timestamp, data: parsed.data };
+    servicesCache = {
+      timestamp: parsed.timestamp,
+      data: parsed.data,
+      locale,
+    };
     return parsed.data;
   } catch {
     return null;
   }
 };
 
-const writeServicesCache = (data: ServiceCard[]) => {
-  servicesCache = { timestamp: Date.now(), data };
+const writeServicesCache = (data: ServiceCard[], locale: string) => {
+  servicesCache = { timestamp: Date.now(), data, locale };
   if (typeof window === "undefined") {
     return;
   }
   try {
     window.sessionStorage.setItem(
-      SERVICES_CACHE_KEY,
-      JSON.stringify(servicesCache),
+      getServicesCacheKey(locale),
+      JSON.stringify({ ...servicesCache, locale }),
     );
   } catch {
     return;
@@ -113,7 +129,8 @@ const buildTravelDate = () => {
 const ServicesSection = () => {
   const t = useTranslations("Services");
   const formatter = useFormatter();
-  const initialServices = readServicesCache() ?? [];
+  const locale = useLocale();
+  const initialServices = readServicesCache(locale) ?? [];
   const [services, setServices] = useState<ServiceCard[]>(initialServices);
   const [isLoading, setIsLoading] = useState(initialServices.length === 0);
   const [selectedCity, setSelectedCity] = useState("All");
@@ -121,7 +138,7 @@ const ServicesSection = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    const cached = hydrateServicesCache();
+    const cached = hydrateServicesCache(locale);
     const hasCachedData = cached && cached.length > 0;
 
     if (hasCachedData) {
@@ -156,6 +173,7 @@ const ServicesSection = () => {
         cityIds: [RAYNA_CITY_IDS.dubai, RAYNA_CITY_IDS.abuDhabi],
         countryId: RAYNA_COUNTRY_ID,
         travelDate,
+        locale,
       });
 
       const ranked = (response.tours ?? []).sort((a, b) => {
@@ -217,7 +235,7 @@ const ServicesSection = () => {
           }
           return ALLOWED_CITY_IDS.has(service.cityId);
         });
-        writeServicesCache(filtered);
+        writeServicesCache(filtered, locale);
         setServices(filtered);
         setIsLoading(false);
       }
@@ -225,7 +243,7 @@ const ServicesSection = () => {
 
     loadServices().catch(() => {
       if (!controller.signal.aborted) {
-        const cached = readServicesCache();
+        const cached = readServicesCache(locale);
         setServices(cached ?? []);
         setIsLoading(false);
       }
@@ -234,7 +252,7 @@ const ServicesSection = () => {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [locale]);
 
   const availableCities = useMemo(() => {
     const citySet = new Set<string>();

@@ -1,28 +1,16 @@
-import {
-  CheckCircle2,
-  Clock,
-  Globe,
-  MapPin,
-  RefreshCw,
-  Shield,
-  ShieldCheck,
-  Smartphone,
-  Star,
-} from "lucide-react";
-import Link from "next/link";
-import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
-
-import { Button } from "@/components/ui/button";
-import Header from "@/components/ui/Header";
+import { CheckCircle2, Clock, Globe, MapPin, RefreshCw, Shield, ShieldCheck, Smartphone, Star, } from "lucide-react";
+import { buildRaynaImageUrl, buildRaynaImageProxyUrl, } from "@/lib/raynaImages";
 import ServiceGallery from "@/components/ui/ServiceGallery";
 import { Link as LocalizedLink } from "@/navigation";
+import { getTranslations } from "next-intl/server";
+import { translateTexts } from "@/lib/translate";
+import { Button } from "@/components/ui/button";
 import { getRaynaConfig } from "@/lib/rayna";
-import {
-  buildRaynaImageUrl,
-  buildRaynaImageProxyUrl,
-} from "@/lib/raynaImages";
+import Header from "@/components/ui/Header";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import Link from "next/link";
+
 
 const galleryLayout = [
   "col-span-2 row-span-2 min-h-[260px]",
@@ -241,7 +229,8 @@ export default async function ServiceDetailPage({
   params: { locale: string; tourId: string };
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  const { tourId } = await Promise.resolve(params);
+  const { tourId, locale } = await Promise.resolve(params);
+  const localeValue = locale?.toLowerCase();
   const query = await Promise.resolve(searchParams ?? {});
   const cityId = getNumberParam(query.cityId);
   const countryId = getNumberParam(query.countryId);
@@ -266,14 +255,73 @@ export default async function ServiceDetailPage({
       contractId,
       travelDate,
     });
-    console.log("tourstaticdatabyid response", detailData);
+    // console.log("tourstaticdatabyid response", detailData);
   } catch {
     notFound();
   }
 
-  const tour = detailData.result?.[0];
+  let tour = detailData.result?.[0];
   if (!tour) {
     notFound();
+  }
+
+  const shouldTranslate =
+    typeof localeValue === "string" && localeValue.startsWith("ro");
+
+  if (shouldTranslate) {
+    const textKeys = [
+      "tourName",
+      "countryName",
+      "cityName",
+      "duration",
+      "cancellationPolicyName",
+      "tourLanguage",
+      "departurePoint",
+      "reportingTime",
+    ] as const;
+    const htmlKeys = [
+      "tourDescription",
+      "tourShortDescription",
+      "tourInclusion",
+      "tourExclusion",
+      "importantInformation",
+      "cancellationPolicyDescription",
+      "termsAndConditions",
+      "whatsInThisTour",
+      "raynaToursAdvantage",
+      "usefulInformation",
+    ] as const;
+
+    const [translatedText, translatedHtml] = await Promise.all([
+      translateTexts(
+        textKeys.map((key) => tour[key] ?? ""),
+        { target: "ro" },
+      ),
+      translateTexts(
+        htmlKeys.map((key) => tour[key] ?? ""),
+        { target: "ro", format: "html" },
+      ),
+    ]);
+
+    const nextTour: TourDetail = { ...tour };
+
+    textKeys.forEach((key, index) => {
+      const original = tour[key];
+      const translated = translatedText[index];
+      if (original && translated) {
+        nextTour[key] = translated;
+      }
+    });
+
+    htmlKeys.forEach((key, index) => {
+      const original = tour[key];
+      const translated = translatedHtml[index];
+      if (original && translated) {
+        nextTour[key] = translated;
+      }
+    });
+
+    tour = nextTour;
   }
 
   const imageCandidates = [

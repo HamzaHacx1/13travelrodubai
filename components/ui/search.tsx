@@ -10,7 +10,7 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
-import { useTranslations, useFormatter } from "next-intl";
+import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { useMemo, useState } from "react";
 
 import FallbackImage from "@/components/ui/FallbackImage";
@@ -87,6 +87,7 @@ const SearchSection = () => {
   const t = useTranslations("Search");
   const servicesT = useTranslations("Services");
   const formatter = useFormatter();
+  const locale = useLocale();
   const [city, setCity] = useState("");
   const [activity, setActivity] = useState("");
   const [currency, setCurrency] = useState(currencyOptions[0].code);
@@ -142,6 +143,7 @@ const SearchSection = () => {
         travelDate,
         query,
         limit: 9,
+        locale,
       });
 
       const mappedResults = (response.tours ?? []).map((tour, index) => {

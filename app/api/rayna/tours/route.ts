@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getRaynaConfig } from "@/lib/rayna";
 import { buildRaynaImageProxyUrl } from "@/lib/raynaImages";
+import { translateTexts } from "@/lib/translate";
 
 type RaynaTour = {
   tourId: number;
@@ -56,6 +57,7 @@ type ToursRequest = {
   travelDate?: string;
   query?: string;
   limit?: number;
+  locale?: string;
 };
 
 const buildTravelDate = () => {
@@ -118,6 +120,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     const travelDate = body.travelDate ?? buildTravelDate();
+    const locale = body.locale?.toLowerCase();
     const query = body.query?.trim().toLowerCase() ?? "";
     const limit = isFiniteNumber(body.limit) ? body.limit : undefined;
 
@@ -190,6 +193,29 @@ export const POST = async (request: NextRequest) => {
         priceFrom: Number.isFinite(priceValue) ? priceValue : undefined,
         currency: price?.currency,
       });
+    }
+
+    const shouldTranslate = typeof locale === "string" && locale.startsWith("ro");
+
+    if (shouldTranslate) {
+      const [translatedNames, translatedCities] = await Promise.all([
+        translateTexts(
+          listings.map((listing) => listing.tourName),
+          { target: "ro" },
+        ),
+        translateTexts(
+          listings.map((listing) => listing.cityName ?? ""),
+          { target: "ro" },
+        ),
+      ]);
+
+      const translatedListings = listings.map((listing, index) => ({
+        ...listing,
+        tourName: translatedNames[index] ?? listing.tourName,
+        cityName: translatedCities[index] || listing.cityName,
+      }));
+
+      return NextResponse.json({ tours: translatedListings });
     }
 
     return NextResponse.json({ tours: listings });
