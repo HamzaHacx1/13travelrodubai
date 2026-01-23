@@ -20,6 +20,7 @@ import ServiceGallery from "@/components/ui/ServiceGallery";
 import { Link as LocalizedLink } from "@/navigation";
 import { getRaynaConfig } from "@/lib/rayna";
 import {
+  buildRaynaImageUrl,
   buildRaynaImageProxyUrl,
 } from "@/lib/raynaImages";
 
@@ -265,6 +266,7 @@ export default async function ServiceDetailPage({
       contractId,
       travelDate,
     });
+    console.log("tourstaticdatabyid response", detailData);
   } catch {
     notFound();
   }
@@ -279,16 +281,16 @@ export default async function ServiceDetailPage({
     tour.imagePath,
   ].filter(Boolean) as string[];
   const proxyCandidates = imageCandidates
+    .map((path) => buildRaynaImageUrl(path))
+    .filter(Boolean)
     .map((path) => buildRaynaImageProxyUrl([path]))
     .filter(Boolean);
   const uniqueCandidates = Array.from(new Set(proxyCandidates));
 
-  const galleryImages = uniqueCandidates
-    .slice(0, galleryLayout.length)
-    .map((src, index) => ({
-      span: galleryLayout[index] ?? "",
-      src,
-    }));
+  const galleryImages = uniqueCandidates.map((src, index) => ({
+    span: galleryLayout[index] ?? "",
+    src,
+  }));
 
   const locationLabel = [tour.cityName, tour.countryName]
     .filter(Boolean)
