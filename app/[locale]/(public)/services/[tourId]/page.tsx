@@ -260,10 +260,11 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
-  let tour = detailData.result?.[0];
-  if (!tour) {
-    notFound();
+  const baseTour = detailData.result?.[0];
+  if (!baseTour) {
+    return notFound();
   }
+  let tour = baseTour;
 
   const shouldTranslate =
     typeof localeValue === "string" && localeValue.startsWith("ro");
